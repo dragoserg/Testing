@@ -57,82 +57,58 @@ namespace Mnogoagentnoe
 
         private void setPopulation() // Метод для записи ячеек с потенциальными потребителями
         {
-            if (isPopulation)
-            {
-                ErrorLog.Text = "\nПопуляция уже создана, \nсначала удалите текущую популяцию \nдля создания новой.";
-                return;
-            }
-            if (int.TryParse(txtPopulation.Text, out int value) && value <= 1000 && value >= 0)
-            {
-                for (int i = 0; i < value; i++)
-                {
-                    var b = Cells[random.Next(Cells.Count)];
 
-                    if (!PotentialCustomers.Contains(b)) { PotentialCustomers.Add(b); }
-                    else { i--; }
-                }
-
-                foreach (DataGridViewCell cell in PotentialCustomers)
-                {
-                    cell.Style.BackColor = Color.Yellow;
-                }
-                isPopulation = true;
-            }
-            else
+            int value = int.Parse(txtPopulation.Text);
+            for (int i = 0; i < value; i++)
             {
-                lblErrorPopul.Text += "Не верно введена популяция";
+                var b = Cells[random.Next(Cells.Count)];
+
+                if (!PotentialCustomers.Contains(b)) { PotentialCustomers.Add(b); }
+                else { i--; }
             }
+
+            foreach (DataGridViewCell cell in PotentialCustomers)
+            {
+                cell.Style.BackColor = Color.Yellow;
+            }
+            isPopulation = true;
         }
 
         private void newDay()
         {
-            //if (!PotentialBuyers.Any())
-            //{
-            //    ErrorLog.Text = "Нет потенциальных покупателей";
-            //    return;
-            //}
-
-            if (int.TryParse(txtChanceBecomeCustomer.Text, out int chance) && chance >= 0 && chance <= 100) //Новые покупатели
-            {
-                if (int.TryParse(txtChanceNotice.Text, out int notice) && notice >= 0 && notice <= 100)
-                {
-                    foreach (var cell in PotentialCustomers) //перебор всех потенциальных покупателей
-                    {
-                        if (random.Next(1, 100) <= chance)
-                        {
-                            if (!Customers.Keys.Contains(cell))
+            int chance = int.Parse(txtChanceBecomeCustomer.Text); //Новые покупатели
+            if (int.TryParse(txtChanceNotice.Text, out int notice) && notice >= 0 && notice <= 100)
                             {
-                                Customers.Add(cell, -1); // добавление нового покупателя при удачном шансе
-                                if (random.Next(1, 100) <= notice)
+                                foreach (var cell in PotentialCustomers) //перебор всех потенциальных покупателей
                                 {
-                                    while(true)
+                                    if (random.Next(1, 100) <= chance)
                                     {
-                                        var rnd = PotentialCustomers[random.Next(0, PotentialCustomers.Count)];
-                                        if (!Customers.Keys.Contains(rnd))
+                                        if (!Customers.Keys.Contains(cell))
                                         {
-                                            Customers.Add(rnd, -1);
-                                            break;
+                                            Customers.Add(cell, -1); // добавление нового покупателя при удачном шансе
+                                            if (random.Next(1, 100) <= notice)
+                                            {
+                                                while(true)
+                                                {
+                                                    var rnd = PotentialCustomers[random.Next(0, PotentialCustomers.Count)];
+                                                    if (!Customers.Keys.Contains(rnd))
+                                                    {
+                                                        Customers.Add(rnd, -1);
+                                                        break;
+                                                    }
+                                                    
+            
+                                                }
+                                            }
                                         }
                                         
-
                                     }
                                 }
                             }
-                            
-                        }
-                    }
-                }
-                else
-                {
-                    lblErrorNotice.Text = "Шанс задан не верно";
-                }
-                
-            } 
-            else
-            {
-                lblErrorCustomer.Text = "Шанс задан не верно";
-                return;
-            }
+                            else
+                            {
+                                lblErrorNotice.Text += "Шанс задан не верно\n";
+                            }
 
             if (int.TryParse(txtStoringDays.Text, out int storingDays) && storingDays > 0) // Удаление покупателей из потенциальных покупателей
             {
@@ -150,7 +126,7 @@ namespace Mnogoagentnoe
             }
             else
             {
-                lblErrorStoringDays.Text = "Неверное значение";
+                lblErrorStoringDays.Text += "Неверное значение\n";
                 return;
             }
 
@@ -180,7 +156,7 @@ namespace Mnogoagentnoe
             // Создание серии для потенциальных покупателей
             Series potentialSeries = new Series("Потенциальные покупатели");
             potentialSeries.ChartType = SeriesChartType.Line; // Линейный график
-            potentialSeries.Color = Color.Yellow; // Цвет линии - желтый
+            potentialSeries.Color = Color.Green; // Цвет линии - желтый
             potentialSeries.BorderWidth = 2; // Толщина линии
 
             // Добавление данных из списка PotentialCustomersList
@@ -195,7 +171,7 @@ namespace Mnogoagentnoe
             // Создание серии для покупателей
             Series customerSeries = new Series("Покупатели");
             customerSeries.ChartType = SeriesChartType.Line; // Линейный график
-            customerSeries.Color = Color.Green; // Цвет линии - зеленый
+            customerSeries.Color = Color.Yellow; // Цвет линии - зеленый
             customerSeries.BorderWidth = 2; // Толщина линии
 
             // Добавление данных из списка CustomersList
@@ -249,7 +225,7 @@ namespace Mnogoagentnoe
                 }
                 else
                 {
-                    lblErrorDays.Text = "Неверное количество дней";
+                    lblErrorDays.Text = "Неверное количество дней\n";
                     return;
                 }
             }
@@ -258,13 +234,13 @@ namespace Mnogoagentnoe
 
         private async void bntStart_Click(object sender, EventArgs e)
         {
-            clearErrors();
+            //clearErrors();
             await Task.Run(() => start());
         }
 
         private async void btnReset_Click(object sender, EventArgs e)
         {
-            clearErrors();
+            //clearErrors();
             await Task.Run(() => deletePopulation());
             foreach (DataGridViewCell cell in Cells)
                 cell.Style.BackColor = Color.White;
@@ -278,19 +254,19 @@ namespace Mnogoagentnoe
 
         private void btnSet_Click(object sender, EventArgs e)
         {
-            clearErrors();
+            //clearErrors();
             setPopulation();
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            clearErrors();
+            //clearErrors();
             deletePopulation();
         }
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            clearErrors();
+            //clearErrors();
         }
     }
 }
